@@ -1,0 +1,11 @@
+# Bỏ qua thư mục node_modules
+node_modules/
+
+# Bỏ qua file .env chứa thông tin nhạy cảm
+.env
+
+# Bỏ qua file package-lock.json (tùy chọn)
+package-lock.json
+
+# Bỏ qua các file tạm hoặc log (nếu có)
+*.log

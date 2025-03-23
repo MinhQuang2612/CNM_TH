@@ -1,59 +1,122 @@
-/* index.css */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-}
-
-.container {
-    width: 80%;
-    max-width: 1000px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-height: 100vh;
+    background-color: #f4f4f9;
     padding: 20px;
 }
 
-.title {
-    text-align: center;
-    font-size: 2rem;
-    color: #d36c6c;
-    margin-bottom: 20px;
-    font-weight: bold;
-    background-color: #f1f1f1;
-    padding: 10px;
-    border-radius: 5px;
+.content {
+    width: 100%;
+    max-width: 500px; /* Giới hạn chiều rộng để giao diện gọn gàng */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Khoảng cách giữa form và bảng */
 }
 
-.course-table {
+/* Form nhập liệu */
+#create {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#create input[type="text"],
+#create input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#create input[type="submit"] {
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+#create input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Form xóa và bảng */
+#delete {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.title h5 {
+    font-size: 16px;
+    color: #333;
+}
+
+.title input[type="submit"] {
+    padding: 6px 12px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.title input[type="submit"]:hover {
+    background-color: #b02a37;
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 14px;
 }
 
-.course-table th, .course-table td {
+th, td {
     padding: 10px;
     text-align: left;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
 }
 
-.course-table th {
-    background-color: #a9c9b9;
-    color: white;
+th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
 }
 
-.course-table tbody tr:nth-child(even) {
+td {
+    background-color: #fff;
+}
+
+tr:nth-child(even) td {
     background-color: #f9f9f9;
 }
 
-.course-table tbody tr:hover {
-    background-color: #f1f1f1;
+input[type="checkbox"] {
+    cursor: pointer;
 }

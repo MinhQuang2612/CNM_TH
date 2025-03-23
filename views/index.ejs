@@ -3,60 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sản phẩm</title>
     <link rel="stylesheet" href="index.css">
-    <title>Danh sách các Môn học</title>
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">Danh sách các Môn học</h1>
-        <table class="course-table">
-            <thead>
+    <div class="content">
+        <!-- Form nhập liệu (Create) -->
+        <form id="create" method="POST" action="/">
+            <input type="text" name="ma_sp" placeholder="ID sản phẩm" required />
+            <input type="text" name="ten_sp" placeholder="Tên sản phẩm" />
+            <input type="number" name="so_luong" placeholder="Số lượng sản phẩm" />
+            <input type="submit" value="Submit" />
+        </form>
+
+        <!-- Form xóa (Delete) -->
+        <form id="delete" method="POST" action="/delete">
+            <div class="title">
+                <h5>Danh sách sản phẩm</h5>
+                <input type="submit" value="Xóa" />
+            </div>
+            <table border="1">
                 <tr>
-                    <th>STT</th>
-                    <th>Tên môn học</th>
-                    <th>Loại môn học</th>
-                    <th>Học kỳ</th>
-                    <th>Khoa</th>
+                    <th>Mã SP</th>
+                    <th>Tên SP</th>
+                    <th>Số Lượng</th>
+                    <th>Chọn</th>
                 </tr>
-            </thead>
-            <tbody>
+                <% for (let i = 0; i < sanPhams.length; i++) { %>
                 <tr>
-                    <td>1</td>
-                    <td>Cơ sở dữ liệu</td>
-                    <td>Cơ sở</td>
-                    <td>HK1-2020-2021</td>
-                    <td>K.CNTT</td>
+                    <td><%= sanPhams[i].ma_sp %></td>
+                    <td><%= sanPhams[i].ten_sp || "Không có tên" %></td>
+                    <td><%= sanPhams[i].so_luong || 0 %></td>
+                    <td><input type="checkbox" name="ma_sp" value="<%= sanPhams[i].ma_sp %>"></td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Cấu trúc dữ liệu</td>
-                    <td>Cơ sở</td>
-                    <td>HK1-2020-2021</td>
-                    <td>K.CNTT</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Công nghệ phần mềm</td>
-                    <td>Cơ sở ngành</td>
-                    <td>HK1-2020-2021</td>
-                    <td>K.CNTT</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>Công nghệ mới</td>
-                    <td>Chuyên ngành</td>
-                    <td>HK1-2020-2021</td>
-                    <td>K.CNTT</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>Đồ án môn học</td>
-                    <td>Chuyên ngành</td>
-                    <td>HK1-2020-2021</td>
-                    <td>K.CNTT</td>
-                </tr>
-            </tbody>
-        </table>
+                <% } %>
+            </table>
+        </form>
     </div>
 </body>
 </html>
