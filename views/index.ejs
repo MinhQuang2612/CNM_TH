@@ -9,10 +9,11 @@
 <body>
     <div class="content">
         <!-- Form nhập liệu (Create) -->
-        <form id="create" method="POST" action="/">
+        <form id="create" method="POST" action="/" enctype="multipart/form-data">
             <input type="text" name="ma_sp" placeholder="ID sản phẩm" required />
             <input type="text" name="ten_sp" placeholder="Tên sản phẩm" />
             <input type="number" name="so_luong" placeholder="Số lượng sản phẩm" />
+            <input type="file" name="image" accept="image/*" /> <!-- Thêm trường upload file -->
             <input type="submit" value="Submit" />
         </form>
 
@@ -27,6 +28,7 @@
                     <th>Mã SP</th>
                     <th>Tên SP</th>
                     <th>Số Lượng</th>
+                    <th>Hình ảnh</th> <!-- Thêm cột Hình ảnh -->
                     <th>Chọn</th>
                 </tr>
                 <% for (let i = 0; i < sanPhams.length; i++) { %>
@@ -34,6 +36,15 @@
                     <td><%= sanPhams[i].ma_sp %></td>
                     <td><%= sanPhams[i].ten_sp || "Không có tên" %></td>
                     <td><%= sanPhams[i].so_luong || 0 %></td>
+                    <td>
+                        <% if (sanPhams[i].image_url) { %>
+                            <img width="50px" src="<%= sanPhams[i].image_url %>?t=<%= Date.now() %>" 
+                                 alt="Hình ảnh sản phẩm"
+                                 onerror="this.onerror=null; this.src=''; this.alt='Ảnh không tồn tại';" />
+                        <% } else { %>
+                            Không có hình ảnh
+                        <% } %>
+                    </td>
                     <td><input type="checkbox" name="ma_sp" value="<%= sanPhams[i].ma_sp %>"></td>
                 </tr>
                 <% } %>
