@@ -100,21 +100,17 @@ app.get('/', async (req, res) => {
     const command = new ScanCommand(params);
     const data = await docClient.send(command);
     
-    // Kiểm tra từng sản phẩm có ảnh tồn tại trong S3 không
     for (const item of data.Items) {
       if (item.image_url) {
         const fileKey = item.image_url.replace(`${cloudFrontUrl}/`, '');
         
         try {
-          // Kiểm tra file có tồn tại trong S3
           await s3Client.send(new HeadObjectCommand({
             Bucket: s3Bucket,
             Key: fileKey
           }));
-          // Nếu không có lỗi, file tồn tại
         } catch (error) {
           if (error.$metadata && error.$metadata.httpStatusCode === 404) {
-            // File không tồn tại, cập nhật DynamoDB để xoá URL
             const updateParams = {
               TableName: tableName,
               Key: {
@@ -126,7 +122,7 @@ app.get('/', async (req, res) => {
               }
             };
             await docClient.send(new UpdateCommand(updateParams));
-            item.image_url = ""; // Cập nhật dữ liệu hiện tại
+            item.image_url = "";
           }
         }
       }
@@ -135,40 +131,61 @@ app.get('/', async (req, res) => {
     return res.render('index', { sanPhams: data.Items });
   } catch (err) {
     console.error('Error scanning DynamoDB:', err);
-    res.send('Internal Server Error');
+    return res.render('index', { sanPhams: [], error: 'Lỗi hệ thống, vui lòng thử lại' });
   }
 });
 
 // Route để thêm sản phẩm
 app.post('/', upload.single('image'), async (req, res) => {
-  const { ma_sp, ten_sp, so_luong } = req.body;
+  const { ma_sp, ten_sp, loai_sp, so_luong } = req.body;
   const file = req.file;
 
-  // Kiểm tra xem ma_sp có tồn tại không
+  // Lấy danh sách sản phẩm để hiển thị lại nếu có lỗi
+  const scanParams = { TableName: tableName };
+  let sanPhams = [];
+  try {
+    const command = new ScanCommand(scanParams);
+    const data = await docClient.send(command);
+    sanPhams = data.Items;
+  } catch (err) {
+    console.error('Error scanning DynamoDB:', err);
+    return res.render('index', { sanPhams: [], error: 'Lỗi hệ thống, vui lòng thử lại' });
+  }
+
+  // Kiểm tra các ràng buộc
   if (!ma_sp) {
-    return res.status(400).send('Missing ma_sp');
+    return res.render('index', { sanPhams, error: 'Mã sản phẩm không được để trống' });
+  }
+  if (!ten_sp) {
+    return res.render('index', { sanPhams, error: 'Tên sản phẩm không được để trống' });
+  }
+  if (!loai_sp) {
+    return res.render('index', { sanPhams, error: 'Loại sản phẩm không được để trống' });
+  }
+  if (!so_luong || Number(so_luong) <= 0) {
+    return res.render('index', { sanPhams, error: 'Số lượng phải lớn hơn 0' });
   }
 
   let imageUrl = '';
   if (file) {
     const fileType = file.mimetype.split('/')[1];
-    const filePath = `${uuid()}.${fileType}`; // Tạo tên file duy nhất
+    const filePath = `${uuid()}.${fileType}`;
 
     const params = {
       Bucket: s3Bucket,
       Key: filePath,
       Body: file.buffer,
       ContentType: file.mimetype,
-      ACL: 'public-read', // Đảm bảo file công khai
+      ACL: 'public-read',
     };
 
     try {
       const command = new PutObjectCommand(params);
       await s3Client.send(command);
-      imageUrl = `${cloudFrontUrl}/${filePath}`; // URL công khai qua CloudFront
+      imageUrl = `${cloudFrontUrl}/${filePath}`;
     } catch (err) {
       console.error('Error uploading to S3:', err);
-      return res.send('Internal Server Error');
+      return res.render('index', { sanPhams, error: 'Lỗi khi tải ảnh lên' });
     }
   }
 
@@ -176,19 +193,20 @@ app.post('/', upload.single('image'), async (req, res) => {
     TableName: tableName,
     Item: {
       ma_sp: String(ma_sp),
-      ten_sp: ten_sp || 'Không có tên',
-      so_luong: Number(so_luong) || 0,
-      image_url: imageUrl || '', // Lưu URL hình ảnh vào DynamoDB
+      ten_sp: ten_sp,
+      loai_sp: loai_sp,
+      so_luong: Number(so_luong),
+      image_url: imageUrl || '',
     },
   };
 
   try {
     const command = new PutCommand(newItem);
     await docClient.send(command);
-    return res.redirect('/');
+    return res.redirect('/'); // Thành công thì reload trang
   } catch (err) {
     console.error('Error putting item to DynamoDB:', err);
-    return res.send('Internal Server Error');
+    return res.render('index', { sanPhams, error: 'Lỗi hệ thống, vui lòng thử lại' });
   }
 });
 
@@ -203,7 +221,6 @@ app.post('/delete', async (req, res) => {
   const itemsToDelete = Array.isArray(ma_sp_list) ? ma_sp_list : [ma_sp_list];
 
   try {
-    // Lấy thông tin các sản phẩm trước khi xóa
     const productPromises = itemsToDelete.map(ma_sp => {
       const command = new GetCommand({
         TableName: tableName,
@@ -216,12 +233,10 @@ app.post('/delete', async (req, res) => {
 
     const productResults = await Promise.all(productPromises);
     
-    // Xử lý xóa file từ S3
     const s3DeletePromises = [];
     
     productResults.forEach(result => {
       if (result.Item && result.Item.image_url) {
-        // Lấy key từ URL CloudFront
         const fileKey = result.Item.image_url.replace(`${cloudFrontUrl}/`, '');
         
         if (fileKey) {
@@ -236,12 +251,10 @@ app.post('/delete', async (req, res) => {
       }
     });
     
-    // Thực hiện xóa file từ S3
     if (s3DeletePromises.length > 0) {
       await Promise.all(s3DeletePromises);
     }
 
-    // Sau đó xóa các mục từ DynamoDB
     const dbDeletePromises = itemsToDelete.map(ma_sp => {
       const params = {
         TableName: tableName,
@@ -257,7 +270,7 @@ app.post('/delete', async (req, res) => {
     return res.redirect('/');
   } catch (err) {
     console.error('Error deleting items:', err);
-    res.send('Internal Server Error');
+    return res.render('index', { sanPhams: [], error: 'Lỗi hệ thống, vui lòng thử lại' });
   }
 });
 

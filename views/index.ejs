@@ -10,10 +10,14 @@
     <div class="content">
         <!-- Form nhập liệu (Create) -->
         <form id="create" method="POST" action="/" enctype="multipart/form-data">
+            <% if (typeof error !== 'undefined') { %>
+                <div class="error-message"><%= error %></div>
+            <% } %>
             <input type="text" name="ma_sp" placeholder="ID sản phẩm" required />
-            <input type="text" name="ten_sp" placeholder="Tên sản phẩm" />
-            <input type="number" name="so_luong" placeholder="Số lượng sản phẩm" />
-            <input type="file" name="image" accept="image/*" /> <!-- Thêm trường upload file -->
+            <input type="text" name="ten_sp" placeholder="Tên sản phẩm" required />
+            <input type="text" name="loai_sp" placeholder="Loại sản phẩm" required />
+            <input type="number" name="so_luong" placeholder="Số lượng sản phẩm" min="1" required />
+            <input type="file" name="image" accept="image/*" />
             <input type="submit" value="Submit" />
         </form>
 
@@ -27,15 +31,17 @@
                 <tr>
                     <th>Mã SP</th>
                     <th>Tên SP</th>
+                    <th>Loại SP</th>
                     <th>Số Lượng</th>
-                    <th>Hình ảnh</th> <!-- Thêm cột Hình ảnh -->
+                    <th>Hình ảnh</th>
                     <th>Chọn</th>
                 </tr>
                 <% for (let i = 0; i < sanPhams.length; i++) { %>
                 <tr>
                     <td><%= sanPhams[i].ma_sp %></td>
-                    <td><%= sanPhams[i].ten_sp || "Không có tên" %></td>
-                    <td><%= sanPhams[i].so_luong || 0 %></td>
+                    <td><%= sanPhams[i].ten_sp %></td>
+                    <td><%= sanPhams[i].loai_sp %></td>
+                    <td><%= sanPhams[i].so_luong %></td>
                     <td>
                         <% if (sanPhams[i].image_url) { %>
                             <img width="50px" src="<%= sanPhams[i].image_url %>?t=<%= Date.now() %>" 

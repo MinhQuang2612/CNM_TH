@@ -16,10 +16,10 @@ body {
 
 .content {
     width: 100%;
-    max-width: 500px; /* Giới hạn chiều rộng để giao diện gọn gàng */
+    max-width: 700px; /* Tăng chiều rộng */
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Khoảng cách giữa form và bảng */
+    gap: 20px;
 }
 
 /* Form nhập liệu */
@@ -34,11 +34,16 @@ body {
 }
 
 #create input[type="text"],
-#create input[type="number"] {
+#create input[type="number"],
+#create input[type="file"] {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
+}
+
+#create input[type="file"] {
+    background-color: #f9f9f9;
 }
 
 #create input[type="submit"] {
@@ -54,6 +59,13 @@ body {
 
 #create input[type="submit"]:hover {
     background-color: #0056b3;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
 }
 
 /* Form xóa và bảng */
@@ -117,6 +129,30 @@ tr:nth-child(even) td {
     background-color: #f9f9f9;
 }
 
+td:last-child, th:last-child {
+    text-align: center; /* Căn giữa cột checkbox */
+}
+
+td img {
+    width: 50px;
+    height: auto;
+    border-radius: 4px;
+    transition: transform 0.2s;
+}
+
+td img:hover {
+    transform: scale(1.2);
+}
+
 input[type="checkbox"] {
     cursor: pointer;
+}
+
+/* Responsive cho bảng */
+@media (max-width: 600px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
 }
